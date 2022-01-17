@@ -5,7 +5,6 @@ from sys import argv
 
 #Initialize
 pygame.init()
-pygame.mixer.init()
 
 icon = pygame.image.load("icon.png")
 boom = pygame.mixer.Sound("boom.wav")
@@ -30,19 +29,25 @@ bodies = []
 collisions = True
 trails = True
 
+cam_x = 0
+cam_y = 0
+
 setmass = 10
 stationary = False
-start_x = None
-start_y = None
+start_pos = None
 
 def update():
+	#Load global variables
 	global bodies
 	global collisions
 	global trails
+
+	global cam_x
+	global cam_y
+
 	global setmass
 	global stationary
-	global start_x
-	global start_y
+	global start_pos
 
 	#Set background
 	window.fill((0, 0, 0))
@@ -50,22 +55,26 @@ def update():
 	#Event loop
 	for event in pygame.event.get():
 		if event.type == pygame.MOUSEBUTTONDOWN:
-			start_x, start_y = event.pos
+			if event.button == 1:
+				start_pos = event.pos
+
+		if event.type == pygame.MOUSEMOTION:
+			if event.buttons[1] == 1:
+				cam_x += event.rel[0]
+				cam_y += event.rel[1]
 
 		if event.type == pygame.MOUSEBUTTONUP:
-			x, y = event.pos
-			div = 100
-			xvel = (x - start_x) / div
-			yvel = (y - start_y) / div
+			if event.button == 1:
+				DIV = 100
+				xvel = (event.pos[0] - start_pos[0]) / DIV
+				yvel = (event.pos[1] - start_pos[1]) / DIV
 
-			if abs(xvel) < 0.5:
-				xvel = 0
-			if abs(yvel) < 0.5:
-				yvel = 0
+				if abs(xvel) < 0.5 and abs(yvel) < 0.5:
+					xvel = 0
+					yvel = 0
 
-			bodies.append(Body(start_x, start_y, xvel, yvel, setmass, stationary, len(bodies)))
-			start_x = None
-			start_y = None
+				bodies.append(Body(start_pos[0] - cam_x, start_pos[1] - cam_y, xvel, yvel, setmass, stationary, len(bodies)))
+				start_pos = None
 
 		if event.type == pygame.KEYDOWN:
 			if event.unicode == "=":
@@ -91,16 +100,18 @@ def update():
 					trails = False
 				else:
 					trails = True
+			elif event.unicode == "f":
+				pygame.display.toggle_fullscreen()
 			elif event.unicode == "r":
 				bodies = []
-
-		if event.type == pygame.QUIT:
-			running = False
+			elif event.key == 27:
+				pygame.quit()
+				exit()
 
 	#Draw body preview
-	if start_x != None and start_y != None:
-		pygame.draw.circle(window, (100, 100, 100), (start_x, start_y), setmass, 0)
-		pygame.draw.line(window, (100, 100, 100), (start_x, start_y), pygame.mouse.get_pos())
+	if start_pos != None:
+		pygame.draw.circle(window, (100, 100, 100), start_pos, setmass, 0)
+		pygame.draw.line(window, (100, 100, 100), start_pos, pygame.mouse.get_pos())
 
 	#Update all bodies
 	for i in range(0,len(bodies)):
@@ -115,10 +126,18 @@ def update():
 		font.render("Stationary (S key): "+str(stationary), True, (100, 150, 100)),
 		font.render("Collisions (C key): "+str(collisions), True, (100, 100, 150)),
 		font.render("Trails (T key): "+str(trails), True, (100, 100, 150)),
-		font.render("Press R to reset", True, (150, 100, 100))
+	]
+	text2 = [
+		font.render("Click & drag LMB to create body", True, (150, 100, 100)),
+		font.render("Click & drag MMB to move camera", True, (150, 100, 100)),
+		font.render("Press F to toggle fullscreen", True, (150, 100, 100)),
+		font.render("Press R to reset", True, (150, 100, 100)),
+		font.render("Press ESC to quit", True, (150, 100, 100)),
 	]
 	for i in range(0,len(text)):
 		window.blit(text[i], (20, 20 + 20 * i))
+	for i in range(0,len(text2)):
+		window.blit(text2[i], (20, window.get_height() - 20 - 20 * len(text2) + 20 * i))
 
 	#Update display
 	pygame.display.update()
@@ -175,21 +194,19 @@ class Body:
 	def draw(self):
 		if trails:
 			for i in range(1, len(self.history)):
-				pygame.draw.line(window, self.color, self.history[i-1], self.history[i])
+				pygame.draw.line(window, self.color, (self.history[i-1][0] + cam_x, self.history[i-1][1] + cam_y), (self.history[i][0] + cam_x, self.history[i][1] + cam_y))
 			if len(self.history) >= 10000:
 				del self.history[0]
 
-		pygame.draw.circle(window, self.color, (self.x, self.y), self.mass, 0)
+		pygame.draw.circle(window, self.color, (self.x + cam_x, self.y + cam_y), self.mass, 0)
 
 		if self.stationary:
 			font = pygame.font.SysFont(None, int(self.mass * 1.2))
 			s = font.render("S", True, (0, 0, 0))
-			window.blit(s, (self.x - self.mass / 4, self.y - self.mass / 3))
+			window.blit(s, ((self.x + cam_x) - self.mass / 4, (self.y + cam_y) - self.mass / 3))
 
 
 
 #Main
-running = True
-
-while running:
+while True:
 	update()
