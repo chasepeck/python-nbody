@@ -15,3 +15,6 @@ python3 python-nbody.py <WIDTH (optional)> <HEIGHT (optional)> <GRAVITATIONAL CO
 ```HEIGHT``` - *optional* - height of the simulator window
 
 ```GRAVITATIONAL CONSTANT``` - *optional* - sets the value of *G*; how strong the gravity is between objects
+
+### The math
+<img src="https://latex.codecogs.com/png.image?\dpi{250}&space;\\d&space;=&space;\sqrt{|x_2&space;-&space;x_1|^2&space;&plus;&space;|y_2&space;-&space;y_1|^2}\\\\F&space;=&space;G\frac{m_1m_2}{d^2}\\\\v_1&space;=&space;\mathrm{Previous}&space;&plus;&space;\frac{x_2&space;-&space;x_1}{dF}\\\\v_2&space;=&space;\mathrm{Previous}&space;&plus;&space;\frac{x_1&space;-&space;x_2}{dF}&space;" title="\\d = \sqrt{|x_2 - x_1|^2 + |y_2 - y_1|^2}\\\\F = G\frac{m_1m_2}{d^2}\\\\v_1 = \mathrm{Previous} + \frac{x_2 - x_1}{dF}\\\\v_2 = \mathrm{Previous} + \frac{x_1 - x_2}{dF} " />
