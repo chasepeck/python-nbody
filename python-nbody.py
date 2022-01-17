@@ -13,14 +13,23 @@ boom = pygame.mixer.Sound("boom.wav")
 pygame.display.set_icon(icon)
 pygame.display.set_caption("Python N-body")
 
-window = pygame.display.set_mode((int(argv[1]), int(argv[2])))
+if len(argv) >= 3:
+	window = pygame.display.set_mode((int(argv[1]), int(argv[2])))
+else:
+	window = pygame.display.set_mode((1920, 1080))
 
-G = int(argv[3]) #6.67408 * 10 ** 11
-
-collisions = bool(int(argv[4]))
-trails = bool(int(argv[5]))
+if len(argv) >= 4:
+	if argv[3] == "G":
+		G = 6.67408 * 10 ** 11
+	else:
+		G = int(argv[3]) #6.67408 * 10 ** 11
+else:
+	G = 1
 
 bodies = []
+collisions = True
+trails = True
+
 setmass = 10
 stationary = False
 start_x = None
@@ -28,6 +37,8 @@ start_y = None
 
 def update():
 	global bodies
+	global collisions
+	global trails
 	global setmass
 	global stationary
 	global start_x
@@ -70,6 +81,18 @@ def update():
 					stationary = False
 				else:
 					stationary = True
+			elif event.unicode == "c":
+				if collisions:
+					collisions = False
+				else:
+					collisions = True
+			elif event.unicode == "t":
+				if trails:
+					trails = False
+				else:
+					trails = True
+			elif event.unicode == "r":
+				bodies = []
 
 		if event.type == pygame.QUIT:
 			running = False
@@ -88,8 +111,11 @@ def update():
 	font = pygame.font.SysFont(None, 24)
 	text = [
 		font.render("Bodies: "+str(len(bodies)), True, (100, 100, 100)),
-		font.render("Mass (+, - keys): "+str(setmass), True, (100, 100, 100)),
-		font.render("Stationary (S key): "+str(stationary), True, (100, 100, 100))
+		font.render("Mass (+, - keys): "+str(setmass), True, (100, 150, 100)),
+		font.render("Stationary (S key): "+str(stationary), True, (100, 150, 100)),
+		font.render("Collisions (C key): "+str(collisions), True, (100, 100, 150)),
+		font.render("Trails (T key): "+str(trails), True, (100, 100, 150)),
+		font.render("Press R to reset", True, (150, 100, 100))
 	]
 	for i in range(0,len(text)):
 		window.blit(text[i], (20, 20 + 20 * i))

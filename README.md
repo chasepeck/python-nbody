@@ -8,14 +8,10 @@ Simulates gravity between celestial bodies.
 
 ### Command-line arguments
 ```
-python3 python-nbody.py <WIDTH> <HEIGHT> <GRAVITATIONAL CONSTANT> <COLLISIONS> <TRAILS>
+python3 python-nbody.py <WIDTH (optional)> <HEIGHT (optional)> <GRAVITATIONAL CONSTANT (optional)>
 ```
-```WIDTH``` - width of the simulator window
+```WIDTH``` - *optional* - width of the simulator window
 
-```HEIGHT``` - height of the simulator window
+```HEIGHT``` - *optional* - height of the simulator window
 
-```GRAVITATIONAL CONSTANT``` - sets the value of *G*; how strong the gravity is between objects
-
-```COLLISIONS``` - if set to *0*, disable collisions
-
-```TRAILS``` - if set to *0*, disable trails
+```GRAVITATIONAL CONSTANT``` - *optional* - sets the value of *G*; how strong the gravity is between objects
