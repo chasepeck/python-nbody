@@ -1,6 +1,6 @@
 # python-nbody
 
-## *N*-body simulator in Python
+### *N*-body simulator in Python
 
 Simulates gravity between celestial bodies.
 
