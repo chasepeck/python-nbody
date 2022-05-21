@@ -10,11 +10,11 @@ Simulates gravity between celestial bodies.
 ```
 python3 python-nbody.py <WIDTH (optional)> <HEIGHT (optional)> <GRAVITATIONAL CONSTANT (optional)>
 ```
-```WIDTH``` - *optional* - width of the simulator window
+```WIDTH``` - *optional (default: 1920)* - width of the simulator window
 
-```HEIGHT``` - *optional* - height of the simulator window
+```HEIGHT``` - *optional (default: 1080)* - height of the simulator window
 
-```GRAVITATIONAL CONSTANT``` - *optional* - sets the value of *G*; how strong the gravity is between objects
+```GRAVITATIONAL CONSTANT``` - *optional (default: 1)* - sets the value of *G*; how strong the gravity is between objects
 
 ### The formulae
 ```python
