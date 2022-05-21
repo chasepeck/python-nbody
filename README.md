@@ -16,5 +16,22 @@ python3 python-nbody.py <WIDTH (optional)> <HEIGHT (optional)> <GRAVITATIONAL CO
 
 ```GRAVITATIONAL CONSTANT``` - *optional* - sets the value of *G*; how strong the gravity is between objects
 
-### The math
-<img src="https://latex.codecogs.com/png.image?\dpi{250}&space;\\d&space;=&space;\sqrt{|x_2&space;-&space;x_1|^2&space;&plus;&space;|y_2&space;-&space;y_1|^2}\\\\F&space;=&space;G\frac{m_1m_2}{d^2}\\\\v_1&space;=&space;\mathrm{Previous}&space;&plus;&space;F\frac{x_2&space;-&space;x_1}{d}\\\\v_2&space;=&space;\mathrm{Previous}&space;&plus;&space;F\frac{x_1&space;-&space;x_2}{d}&space;" title="N-body simulation formulae" />
+### The formulae
+```python
+for body in bodies:
+    if body.index != self.index:
+        dist_x = abs(body.x - self.x)
+        dist_y = abs(body.y - self.y)
+        dist = math.sqrt(dist_x ** 2 + dist_y ** 2)
+
+        force = G * (body.mass * self.mass / dist ** 2)
+
+        if not self.stationary:
+            self.xvel += (body.x - self.x) / dist * force
+            self.yvel += (body.y - self.y) / dist * force
+
+        if not body.stationary:
+            body.xvel += (self.x - body.x) / dist * force
+            body.yvel += (self.y - body.y) / dist * force
+```
+*(Lines 167-181)*
