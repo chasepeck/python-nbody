@@ -180,8 +180,7 @@ class Body:
 					body.xvel += (self.x - body.x) / dist * force
 					body.yvel += (self.y - body.y) / dist * force
 
-				if trails:
-					self.history.append((self.x, self.y))
+				self.history.append((self.x, self.y))
 
 				if dist <= self.mass + 10 and collisions:
 					boom.play()
