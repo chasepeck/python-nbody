@@ -31,6 +31,7 @@ trails = True
 
 cam_x = 0
 cam_y = 0
+cam_zoom = 1
 
 setmass = 10
 stationary = False
@@ -44,6 +45,7 @@ def update():
 
 	global cam_x
 	global cam_y
+	global cam_zoom
 
 	global setmass
 	global stationary
@@ -75,6 +77,9 @@ def update():
 
 				bodies.append(Body(start_pos[0] - cam_x, start_pos[1] - cam_y, xvel, yvel, setmass, stationary, len(bodies)))
 				start_pos = None
+				
+		if event.type == pygame.MOUSEWHEEL:
+			cam_zoom += event.y / 10
 
 		if event.type == pygame.KEYDOWN:
 			if event.unicode == "=":
@@ -193,16 +198,16 @@ class Body:
 	def draw(self):
 		if trails:
 			for i in range(1, len(self.history)):
-				pygame.draw.line(window, self.color, (self.history[i-1][0] + cam_x, self.history[i-1][1] + cam_y), (self.history[i][0] + cam_x, self.history[i][1] + cam_y))
+				pygame.draw.line(window, self.color, ((self.history[i-1][0] + cam_x) * cam_zoom, (self.history[i-1][1] + cam_y) * cam_zoom), ((self.history[i][0] + cam_x) * cam_zoom, (self.history[i][1] + cam_y) * cam_zoom))
 			if len(self.history) >= 10000:
 				del self.history[0]
 
-		pygame.draw.circle(window, self.color, (self.x + cam_x, self.y + cam_y), self.mass, 0)
+		pygame.draw.circle(window, self.color, ((self.x + cam_x) * cam_zoom, (self.y + cam_y) * cam_zoom), self.mass * cam_zoom, 0)
 
 		if self.stationary:
 			font = pygame.font.SysFont(None, int(self.mass * 1.2))
 			s = font.render("S", True, (0, 0, 0))
-			window.blit(s, ((self.x + cam_x) - self.mass / 4, (self.y + cam_y) - self.mass / 3))
+			window.blit(s, ((self.x + cam_x) * cam_zoom - self.mass * cam_zoom / 4, (self.y + cam_y) * cam_zoom - self.mass * cam_zoom / 3))
 
 
 
