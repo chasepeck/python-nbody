@@ -13,9 +13,13 @@ pygame.display.set_icon(icon)
 pygame.display.set_caption("Python N-body")
 
 if len(argv) >= 3:
-	window = pygame.display.set_mode((int(argv[1]), int(argv[2])))
+	width = int(argv[1])
+	height = int(argv[2])
 else:
-	window = pygame.display.set_mode((1920, 1080))
+	width = 1920
+	height = 1080
+
+window = pygame.display.set_mode((width, height))
 
 if len(argv) >= 4:
 	if argv[3] == "G":
@@ -75,7 +79,7 @@ def update():
 					xvel = 0
 					yvel = 0
 
-				bodies.append(Body(start_pos[0] - cam_x, start_pos[1] - cam_y, xvel, yvel, setmass, stationary, len(bodies)))
+				bodies.append(Body(start_pos[0] / cam_zoom - cam_x, start_pos[1] / cam_zoom - cam_y, xvel, yvel, setmass, stationary, len(bodies)))
 				start_pos = None
 				
 		if event.type == pygame.MOUSEWHEEL:
@@ -109,13 +113,20 @@ def update():
 				pygame.display.toggle_fullscreen()
 			elif event.unicode == "r":
 				bodies = []
+				cam_x = 0
+				cam_y = 0
+				cam_zoom = 1
+			elif event.unicode == "z":
+				cam_x = 0
+				cam_y = 0
+				cam_zoom = 1
 			elif event.key == 27:
 				pygame.quit()
 				exit()
 
 	#Draw body preview
 	if start_pos != None:
-		pygame.draw.circle(window, (100, 100, 100), start_pos, setmass, 0)
+		pygame.draw.circle(window, (100, 100, 100), start_pos, setmass * cam_zoom, 0)
 		pygame.draw.line(window, (100, 100, 100), start_pos, pygame.mouse.get_pos())
 
 	#Update all bodies
@@ -135,7 +146,9 @@ def update():
 	text2 = [
 		font.render("Click & drag LMB to create body", True, (150, 100, 100)),
 		font.render("Click & drag MMB to move camera", True, (150, 100, 100)),
+		font.render("Scroll to zoom", True, (150, 100, 100)),
 		font.render("Press F to toggle fullscreen", True, (150, 100, 100)),
+		font.render("Press Z to reset camera", True, (150, 100, 100)),
 		font.render("Press R to reset", True, (150, 100, 100)),
 		font.render("Press ESC to quit", True, (150, 100, 100)),
 	]
