@@ -34,4 +34,4 @@ for body in bodies:
             body.xvel += (self.x - body.x) / dist * force
             body.yvel += (self.y - body.y) / dist * force
 ```
-*(Lines 167-181)*
+*(Lines 185-199)*
