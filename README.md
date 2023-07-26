@@ -8,13 +8,15 @@ Simulates gravity between celestial bodies. Uses `pygame`.
 
 ### Command-line arguments
 ```
-python3 python-nbody.py <WIDTH (optional)> <HEIGHT (optional)> <GRAVITATIONAL CONSTANT (optional)>
+python3 python-nbody.py <WIDTH (optional)> <HEIGHT (optional)> <GRAVITATIONAL CONSTANT (optional)> <TRAIL QUALITY (optional)>
 ```
 `WIDTH` - *optional (default: 1920)* - width of the simulator window
 
 `HEIGHT` - *optional (default: 1080)* - height of the simulator window
 
-`GRAVITATIONAL CONSTANT` - *optional (default: 1)* - sets the value of *G*; how strong the gravity is between objects
+`GRAVITATIONAL CONSTANT` - *optional (default: 1)* - sets the value of *G*—how strong the gravity is between objects
+
+`TRAIL QUALITY` - *optional (default: 10000)* - the number of coordinates that will be saved in each object's trail
 
 ### The formulae
 ```python
@@ -34,4 +36,3 @@ for body in bodies:
             body.xvel += (self.x - body.x) / dist * force
             body.yvel += (self.y - body.y) / dist * force
 ```
-*(Lines 185-199)*

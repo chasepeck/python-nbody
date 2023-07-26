@@ -29,14 +29,21 @@ if len(argv) >= 4:
 else:
 	G = 1
 
+if len(argv) >= 5:
+	trail_quality = int(argv[4])
+else:
+	trail_quality = 10000
+
+DIV = 100
 bodies = []
-collisions = True
-trails = True
+collisions = False
+trails = False
 
 cam_x = 0
 cam_y = 0
 cam_zoom = 1
 
+simspeed = 1
 setmass = 10
 stationary = False
 start_pos = None
@@ -51,6 +58,7 @@ def update():
 	global cam_y
 	global cam_zoom
 
+	global simspeed
 	global setmass
 	global stationary
 	global start_pos
@@ -66,12 +74,11 @@ def update():
 
 		if event.type == pygame.MOUSEMOTION:
 			if event.buttons[1] == 1:
-				cam_x += event.rel[0]
-				cam_y += event.rel[1]
+				cam_x += event.rel[0] / cam_zoom
+				cam_y += event.rel[1] / cam_zoom
 
 		if event.type == pygame.MOUSEBUTTONUP:
 			if event.button == 1:
-				DIV = 100
 				xvel = (event.pos[0] - start_pos[0]) / DIV
 				yvel = (event.pos[1] - start_pos[1]) / DIV
 
@@ -81,7 +88,7 @@ def update():
 
 				bodies.append(Body(start_pos[0] / cam_zoom - cam_x, start_pos[1] / cam_zoom - cam_y, xvel, yvel, setmass, stationary, len(bodies)))
 				start_pos = None
-				
+
 		if event.type == pygame.MOUSEWHEEL:
 			cam_zoom += event.y / 10
 
@@ -94,6 +101,10 @@ def update():
 				setmass -= 1
 			elif event.unicode == "_":
 				setmass -= 10
+			elif event.unicode == "u":
+				simspeed += 1
+			elif event.unicode == "d":
+				simspeed -= 1
 			elif event.unicode == "s":
 				if stationary:
 					stationary = False
@@ -126,7 +137,7 @@ def update():
 
 	#Draw body preview
 	if start_pos != None:
-		pygame.draw.circle(window, (100, 100, 100), start_pos, setmass * cam_zoom, 0)
+		pygame.draw.circle(window, (100, 100, 100), start_pos, abs(setmass) * cam_zoom, setmass <= 0)
 		pygame.draw.line(window, (100, 100, 100), start_pos, pygame.mouse.get_pos())
 
 	#Update all bodies
@@ -138,6 +149,7 @@ def update():
 	font = pygame.font.SysFont(None, 24)
 	text = [
 		font.render("Bodies: "+str(len(bodies)), True, (100, 100, 100)),
+		font.render("Sim speed (U, D keys): "+str(simspeed), True, (150, 150, 100)),
 		font.render("Mass (+, - keys): "+str(setmass), True, (100, 150, 100)),
 		font.render("Stationary (S key): "+str(stationary), True, (100, 150, 100)),
 		font.render("Collisions (C key): "+str(collisions), True, (100, 100, 150)),
@@ -177,50 +189,65 @@ class Body:
 		self.history = []
 
 	def update(self, index):
-		self.index = index
+		for i in range(0, simspeed):
+			self.index = index
 
-		self.x += self.xvel
-		self.y += self.yvel
+			self.x += self.xvel
+			self.y += self.yvel
 
-		for body in bodies:
-			if body.index != self.index:
-				dist_x = abs(body.x - self.x)
-				dist_y = abs(body.y - self.y)
-				dist = math.sqrt(dist_x ** 2 + dist_y ** 2)
+			for body in bodies:
+				if body.index != self.index:
+					dist_x = abs(body.x - self.x)
+					dist_y = abs(body.y - self.y)
+					dist = math.sqrt(dist_x ** 2 + dist_y ** 2)
 
-				force = G * (body.mass * self.mass / dist ** 2)
+					force = G * (body.mass * self.mass / dist ** 2)
 
-				if not self.stationary:
-					self.xvel += (body.x - self.x) / dist * force
-					self.yvel += (body.y - self.y) / dist * force
+					if not self.stationary:
+						self.xvel += (body.x - self.x) / dist * force
+						self.yvel += (body.y - self.y) / dist * force
 
-				if not body.stationary:
-					body.xvel += (self.x - body.x) / dist * force
-					body.yvel += (self.y - body.y) / dist * force
+					if not body.stationary:
+						body.xvel += (self.x - body.x) / dist * force
+						body.yvel += (self.y - body.y) / dist * force
 
-				self.history.append((self.x, self.y))
+					if dist <= self.mass * 2 and collisions:
+						boom.play()
+						if self.mass > body.mass:
+							del bodies[body.index]
+						else:
+							del bodies[self.index]
 
-				if dist <= self.mass + 10 and collisions:
-					boom.play()
-					if self.mass > body.mass:
-						del bodies[body.index]
-					else:
-						del bodies[self.index]
+		self.history.append((self.x, self.y))
+		if len(self.history) >= trail_quality:
+			del self.history[0]
 		self.draw()
 
 	def draw(self):
 		if trails:
 			for i in range(1, len(self.history)):
-				pygame.draw.line(window, self.color, ((self.history[i-1][0] + cam_x) * cam_zoom, (self.history[i-1][1] + cam_y) * cam_zoom), ((self.history[i][0] + cam_x) * cam_zoom, (self.history[i][1] + cam_y) * cam_zoom))
-			if len(self.history) >= 10000:
-				del self.history[0]
+				pygame.draw.line(
+					window,
+					self.color,
+					((self.history[i-1][0] + cam_x) * cam_zoom,
+					(self.history[i-1][1] + cam_y) * cam_zoom),
+					((self.history[i][0] + cam_x) * cam_zoom,
+					(self.history[i][1] + cam_y) * cam_zoom))
 
-		pygame.draw.circle(window, self.color, ((self.x + cam_x) * cam_zoom, (self.y + cam_y) * cam_zoom), self.mass * cam_zoom, 0)
+		if self.mass > 0:
+			pygame.draw.circle(window, self.color, ((self.x + cam_x) * cam_zoom, (self.y + cam_y) * cam_zoom), self.mass * cam_zoom, 0)
+		elif self.mass < 0:
+			pygame.draw.circle(window, self.color, ((self.x + cam_x) * cam_zoom, (self.y + cam_y) * cam_zoom), -self.mass * cam_zoom, 1)
+
+		if simspeed == 0:
+			pygame.draw.line(window, (100, 100, 100),
+				((self.x + cam_x) * cam_zoom, (self.y + cam_y) * cam_zoom),
+				((self.x + cam_x + self.xvel * DIV) * cam_zoom, (self.y + cam_y + self.yvel * DIV) * cam_zoom))
 
 		if self.stationary:
-			font = pygame.font.SysFont(None, int(self.mass * 1.2))
-			s = font.render("S", True, (0, 0, 0))
-			window.blit(s, ((self.x + cam_x) * cam_zoom - self.mass * cam_zoom / 4, (self.y + cam_y) * cam_zoom - self.mass * cam_zoom / 3))
+			font = pygame.font.SysFont(None, int(abs(self.mass) * 1.2 * cam_zoom))
+			s = font.render("S", True, (0, 0, 0) if self.mass >= 0 else self.color)
+			window.blit(s, ((self.x + cam_x) * cam_zoom - abs(self.mass) * cam_zoom / 4, (self.y + cam_y) * cam_zoom - abs(self.mass) * cam_zoom / 3))
 
 
 
