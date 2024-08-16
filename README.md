@@ -4,6 +4,8 @@
 
 Simulates gravity between celestial bodies. Uses `pygame`.
 
+![Screenshot](nbody.png)
+
 ---
 
 ### Command-line arguments
